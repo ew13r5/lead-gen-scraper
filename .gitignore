@@ -12,3 +12,7 @@ proxies.txt
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+
+# Planning (local only)
+planning/
+*.db
