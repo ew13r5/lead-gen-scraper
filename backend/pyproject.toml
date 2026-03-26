@@ -1,0 +1,23 @@
+[project]
+name = "lead-gen-scraper"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx",
+    "parsel",
+    "pydantic>=2.0",
+    "pyyaml",
+    "click",
+    "fake-useragent",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "respx",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
