@@ -22,8 +22,15 @@ class OffsetPagination(BaseModel):
     max_pages: int
 
 
+class ScrollPagination(BaseModel):
+    type: Literal["scroll"]
+    param: str | None = None
+    start: int = 0
+    max_pages: int = 10
+
+
 PaginationUnion = Annotated[
-    Union[UrlParamPagination, OffsetPagination],
+    Union[UrlParamPagination, OffsetPagination, ScrollPagination],
     Field(discriminator="type"),
 ]
 
@@ -54,18 +61,13 @@ class SourceConfig(BaseModel):
     url_template: str | None = None
     pagination: PaginationUnion
     listing_selector: str
-    selectors: dict[str, str]
+    selectors: dict[str, str | None]
     json_ld: JsonLdConfig | None = None
     rate_limit: RateLimitConfig
     proxy: ProxyConfig
 
     @model_validator(mode="after")
     def validate_config_rules(self) -> "SourceConfig":
-        if self.renderer == "playwright":
-            raise ValueError(
-                "Playwright renderer not supported in Phase 1. Use renderer: static"
-            )
-
         dr = self.rate_limit.delay_range
         if len(dr) != 2:
             raise ValueError("delay_range must have exactly 2 elements [min, max]")

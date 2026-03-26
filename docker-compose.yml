@@ -1,58 +1,74 @@
+name: leadgen-scraper
+
 services:
-  postgres:
+  leadgen-postgres:
     image: postgres:15
+    container_name: leadgen-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: leadgen
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - leadgen-pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5440:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  redis:
+  leadgen-redis:
     image: redis:7
+    container_name: leadgen-redis
     ports:
-      - "6379:6379"
+      - "6385:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  api:
+  leadgen-api:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: leadgen-api
     ports:
-      - "8000:8000"
+      - "8010:8000"
     env_file: ./backend/.env
     depends_on:
-      postgres:
+      leadgen-postgres:
         condition: service_healthy
-      redis:
+      leadgen-redis:
         condition: service_healthy
     volumes:
       - ./backend/exports:/app/exports
 
-  celery-worker:
+  leadgen-celery:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: leadgen-celery
     command: celery -A tasks.celery_app worker --loglevel=info
     env_file: ./backend/.env
     depends_on:
-      postgres:
+      leadgen-postgres:
         condition: service_healthy
-      redis:
+      leadgen-redis:
         condition: service_healthy
     volumes:
       - ./backend/exports:/app/exports
 
+  leadgen-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: leadgen-frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      - leadgen-api
+
 volumes:
-  pgdata:
+  leadgen-pgdata:

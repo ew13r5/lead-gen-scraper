@@ -82,3 +82,30 @@ async def get_result(company_id: str, db: AsyncSession = Depends(get_db)):
     if not company:
         raise HTTPException(404, "Company not found")
     return company
+
+
+EDITABLE_FIELDS = {
+    "company_name", "phone_display", "email", "website",
+    "address", "city", "state", "zip", "category", "needs_review",
+}
+
+
+@router.patch("/{company_id}", response_model=CompanyResponse)
+async def update_result(
+    company_id: str,
+    updates: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Company).where(Company.id == company_id))
+    company = result.scalar_one_or_none()
+    if not company:
+        raise HTTPException(404, "Company not found")
+
+    for field, value in updates.items():
+        if field not in EDITABLE_FIELDS:
+            raise HTTPException(400, f"Field '{field}' is not editable")
+        setattr(company, field, value)
+
+    await db.commit()
+    await db.refresh(company)
+    return company

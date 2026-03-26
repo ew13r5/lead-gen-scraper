@@ -1,0 +1,28 @@
+# last_verified: 2026-03-26
+# Phase 2: requires Playwright (dynamic renderer)
+name: crunchbase
+base_url: "https://www.crunchbase.com/discover/organization.companies"
+renderer: playwright
+search_params:
+  query: "{query}"
+  location: "{location}"
+pagination:
+  type: scroll
+  param: null
+  start: 0
+  max_pages: 20
+listing_selector: "div.component--grid-row"
+selectors:
+  company_name: "a.component--field-formatter::text"
+  website: "a.component--field-formatter::attr(href)"
+  category: "span.identifier-label::text"
+  address: "span.location-card::text"
+  rating: null
+  phone: null
+rate_limit:
+  delay_range: [3, 6]
+  concurrent: 1
+  max_retries: 3
+proxy:
+  required: true
+  country: US

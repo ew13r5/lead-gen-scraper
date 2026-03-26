@@ -132,11 +132,11 @@ class TestLoadSourceConfig:
         with pytest.raises(ValidationError):
             load_source_config("bad", tmp_path)
 
-    def test_playwright_renderer_raises(self, tmp_path):
-        bad = VALID_YP_YAML.replace("renderer: static", "renderer: playwright")
-        write_yaml(tmp_path, "bad", bad)
-        with pytest.raises(ValidationError, match="[Pp]laywright"):
-            load_source_config("bad", tmp_path)
+    def test_playwright_renderer_loads(self, tmp_path):
+        pw = VALID_YP_YAML.replace("renderer: static", "renderer: playwright")
+        write_yaml(tmp_path, "pw", pw)
+        config = load_source_config("pw", tmp_path)
+        assert config.renderer == "playwright"
 
     def test_delay_range_inverted_raises(self, tmp_path):
         bad = VALID_YP_YAML.replace("delay_range: [2, 4]", "delay_range: [5, 2]")
