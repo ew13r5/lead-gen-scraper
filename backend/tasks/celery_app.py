@@ -16,4 +16,5 @@ celery_app.conf.update(
     task_track_started=True,
     result_expires=86400,
     timezone="UTC",
+    include=["tasks.scrape_task"],
 )

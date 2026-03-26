@@ -27,8 +27,11 @@ class TestApp:
 
     @pytest.mark.asyncio
     async def test_cors_headers(self, client):
+        from config import Settings
+        origins = Settings().cors_origins
+        origin = origins[0] if origins else "http://localhost:3000"
         resp = await client.options(
             "/api/v1/tasks",
-            headers={"Origin": "http://localhost:3000", "Access-Control-Request-Method": "GET"},
+            headers={"Origin": origin, "Access-Control-Request-Method": "GET"},
         )
         assert "access-control-allow-origin" in resp.headers

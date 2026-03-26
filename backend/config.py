@@ -10,5 +10,6 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     app_mode: str = "demo"
     exports_dir: str = "./exports"
+    sources_dir: str = "./sources"
     google_sheets_credentials: str | None = None
     cors_origins: list[str] = ["http://localhost:3000"]

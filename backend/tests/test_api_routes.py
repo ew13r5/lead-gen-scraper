@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -72,9 +73,11 @@ async def client(app):
         yield ac
 
 
+@patch("api.routes.tasks.run_scrape")
 class TestTaskRoutes:
     @pytest.mark.asyncio
-    async def test_create_task(self, client):
+    async def test_create_task(self, mock_scrape, client):
+        mock_scrape.delay = MagicMock()
         resp = await client.post("/api/v1/tasks/", json={
             "source": "yellowpages", "query": "plumbers", "location": "NYC"
         })
@@ -82,16 +85,26 @@ class TestTaskRoutes:
         data = resp.json()
         assert data["status"] == "pending"
         assert data["source"] == "yellowpages"
+        mock_scrape.delay.assert_called_once_with(data["id"])
 
     @pytest.mark.asyncio
-    async def test_create_invalid_source(self, client):
+    async def test_create_invalid_source(self, mock_scrape, client):
         resp = await client.post("/api/v1/tasks/", json={
             "source": "invalid", "query": "q", "location": "l"
         })
         assert resp.status_code == 400
 
     @pytest.mark.asyncio
-    async def test_list_tasks(self, client):
+    async def test_create_task_with_enrich(self, mock_scrape, client):
+        mock_scrape.delay = MagicMock()
+        resp = await client.post("/api/v1/tasks/", json={
+            "source": "yelp", "query": "dentists", "location": "LA", "enrich": True
+        })
+        assert resp.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_list_tasks(self, mock_scrape, client):
+        mock_scrape.delay = MagicMock()
         await client.post("/api/v1/tasks/", json={"source": "yelp", "query": "q", "location": "l"})
         resp = await client.get("/api/v1/tasks/")
         assert resp.status_code == 200
@@ -99,14 +112,15 @@ class TestTaskRoutes:
         assert data["total"] >= 1
 
     @pytest.mark.asyncio
-    async def test_get_task(self, client):
+    async def test_get_task(self, mock_scrape, client):
+        mock_scrape.delay = MagicMock()
         create_resp = await client.post("/api/v1/tasks/", json={"source": "bbb", "query": "q", "location": "l"})
         task_id = create_resp.json()["id"]
         resp = await client.get(f"/api/v1/tasks/{task_id}")
         assert resp.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_get_task_404(self, client):
+    async def test_get_task_404(self, mock_scrape, client):
         resp = await client.get("/api/v1/tasks/nonexistent")
         assert resp.status_code == 404
 

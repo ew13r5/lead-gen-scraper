@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.deps import get_db, get_current_mode
 from db_models.scrape_task import ScrapeTask
 from schemas.task import TaskCreate, TaskListResponse, TaskResponse
+from tasks.scrape_task import run_scrape
 
 router = APIRouter(tags=["tasks"])
 
@@ -23,11 +24,12 @@ async def create_task(
         raise HTTPException(400, f"Unknown source: {body.source}")
     task = ScrapeTask(
         source=body.source, query=body.query, location=body.location,
-        limit=body.limit, mode=mode, status="pending",
+        limit=body.limit, enrich=body.enrich, mode=mode, status="pending",
     )
     db.add(task)
     await db.commit()
     await db.refresh(task)
+    run_scrape.delay(task.id)
     return task
 
 

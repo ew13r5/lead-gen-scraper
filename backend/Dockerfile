@@ -8,12 +8,14 @@ RUN pip install uv
 WORKDIR /app
 
 COPY pyproject.toml ./
-RUN uv pip install --system -r pyproject.toml || uv pip install --system httpx parsel "pydantic>=2.0" pyyaml click fake-useragent "fastapi[standard]" "sqlalchemy[asyncio]" asyncpg pydantic-settings alembic celery redis openpyxl gspread email-validator phonenumbers rapidfuzz faker numpy
+RUN uv pip install --system -r pyproject.toml || uv pip install --system httpx parsel "pydantic>=2.0" pyyaml click fake-useragent "fastapi[standard]" "sqlalchemy[asyncio]" asyncpg pydantic-settings alembic celery redis openpyxl gspread email-validator phonenumbers rapidfuzz faker numpy psycopg2-binary asgiref
 
 COPY . .
 
 RUN mkdir -p /app/exports
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

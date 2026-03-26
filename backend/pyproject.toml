@@ -9,6 +9,8 @@ dependencies = [
     "pyyaml",
     "click",
     "fake-useragent",
+    "psycopg2-binary",
+    "asgiref",
 ]
 
 [project.optional-dependencies]

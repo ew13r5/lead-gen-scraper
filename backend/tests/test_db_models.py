@@ -91,6 +91,6 @@ class TestExportLog:
 
 class TestSettings:
     def test_defaults(self):
-        s = Settings(database_url="sqlite:///test.db")
+        s = Settings(_env_file=None, database_url="sqlite:///test.db")
         assert s.redis_url == "redis://localhost:6379/0"
         assert s.app_mode == "demo"
