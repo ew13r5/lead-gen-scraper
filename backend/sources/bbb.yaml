@@ -1,0 +1,26 @@
+# last_verified: 2026-03-26
+name: bbb
+base_url: "https://www.bbb.org/search"
+renderer: static
+search_params:
+  find_text: "{query}"
+  find_loc: "{location}"
+pagination:
+  type: url_param
+  param: page
+  start: 1
+  max_pages: 50
+listing_selector: "div.search-result-item"
+selectors:
+  company_name: "h3.result-name a::text"
+  phone: "span.result-phone::text"
+  address: "p.result-address::text"
+  rating: "span.result-rating::text"
+  category: "span.result-category::text"
+  website: "a.result-website::attr(href)"
+rate_limit:
+  delay_range: [1, 3]
+  concurrent: 2
+  max_retries: 3
+proxy:
+  required: false

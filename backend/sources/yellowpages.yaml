@@ -1,0 +1,26 @@
+# last_verified: 2026-03-26
+name: yellowpages
+base_url: "https://www.yellowpages.com/search"
+renderer: static
+search_params:
+  search_terms: "{query}"
+  geo_location_terms: "{location}"
+pagination:
+  type: url_param
+  param: page
+  start: 1
+  max_pages: 50
+listing_selector: "div.result"
+selectors:
+  company_name: "a.business-name::text"
+  phone: "div.phones::text"
+  address: "div.adr::text"
+  website: "a.track-visit-website::attr(href)"
+  category: "div.categories a::text"
+rate_limit:
+  delay_range: [2, 4]
+  concurrent: 1
+  max_retries: 3
+proxy:
+  required: true
+  country: US

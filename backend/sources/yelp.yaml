@@ -1,0 +1,34 @@
+# last_verified: 2026-03-26
+name: yelp
+base_url: "https://www.yelp.com/search"
+renderer: static
+search_params:
+  find_desc: "{query}"
+  find_loc: "{location}"
+pagination:
+  type: offset
+  param: start
+  start: 0
+  step: 10
+  max_pages: 100
+listing_selector: "[data-testid='serp-ia-card']"
+selectors:
+  company_name: "a.css-19v1rkv::text"
+  phone: "p.css-1p9ibgf::text"
+  address: "p.css-e81eai::text"
+  rating: "div[aria-label*='star rating']::attr(aria-label)"
+  review_count: "span.css-chan6m::text"
+  category: "p.css-gc9oho a::text"
+json_ld:
+  selector: "script[type='application/ld+json']"
+  fields_map:
+    name: company_name
+    telephone: phone
+    address.streetAddress: address
+    aggregateRating.ratingValue: rating
+rate_limit:
+  delay_range: [3, 5]
+  concurrent: 1
+  max_retries: 3
+proxy:
+  required: true

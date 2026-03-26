@@ -1,0 +1,27 @@
+# last_verified: 2026-03-26
+name: clutch
+base_url: "https://clutch.co"
+renderer: static
+search_params: {}
+url_template: "https://clutch.co/{category}?page={page}"
+pagination:
+  type: url_param
+  param: page
+  start: 1
+  max_pages: 50
+listing_selector: "li.provider-row"
+selectors:
+  company_name: "h3.company_info a::text"
+  website: "a.company-website::attr(href)"
+  rating: "span.rating::text"
+  review_count: "span.reviews-count::text"
+  hourly_rate: "div.hourly-rate span::text"
+  min_project: "div.min-project span::text"
+  category: "div.company-specialties a::text"
+  address: "span.locality::text"
+rate_limit:
+  delay_range: [2, 4]
+  concurrent: 1
+  max_retries: 3
+proxy:
+  required: false
