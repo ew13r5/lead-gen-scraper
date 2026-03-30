@@ -11,6 +11,9 @@ dependencies = [
     "fake-useragent",
     "psycopg2-binary",
     "asgiref",
+    "jmespath",
+    "playwright",
+    "playwright-stealth",
 ]
 
 [project.optional-dependencies]

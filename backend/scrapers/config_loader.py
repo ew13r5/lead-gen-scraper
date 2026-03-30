@@ -63,6 +63,8 @@ class SourceConfig(BaseModel):
     listing_selector: str
     selectors: dict[str, str | None]
     json_ld: JsonLdConfig | None = None
+    app_state_selector: str | None = None
+    app_state_jmespath: str | None = None
     rate_limit: RateLimitConfig
     proxy: ProxyConfig
 

@@ -66,11 +66,12 @@ class TestSourceRouter:
             mock_instance.scrape.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_playwright_raises(self, tmp_path):
-        pw_yaml = VALID_YAML.replace("renderer: static", "renderer: playwright")
-        # Playwright check is in model validation, so it will raise ValidationError
-        # We test the router path for a hypothetical bypass
+    async def test_playwright_dispatches_to_dynamic_scraper(self, tmp_path):
+        pw_yaml = VALID_YAML.replace("renderer: static", "renderer: playwright").replace("name: test_source", "name: pw")
         (tmp_path / "pw.yaml").write_text(pw_yaml)
         router = SourceRouter(tmp_path)
-        with pytest.raises(Exception):
-            await router.scrape("pw", "q", "l", 10)
+        # DynamicScraper will return an error (no playwright installed)
+        # but it should NOT raise NotImplementedError
+        result = await router.scrape("pw", "q", "l", 10)
+        assert result is not None
+        assert result.source == "pw"

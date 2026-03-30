@@ -11,8 +11,8 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 class TestConfigsLoad:
     def test_all_configs_load(self):
         configs = load_all_configs(SOURCES_DIR)
-        assert len(configs) == 6
-        assert set(configs.keys()) == {"yellowpages", "yelp", "bbb", "clutch", "crunchbase", "google_maps"}
+        assert len(configs) == 5
+        assert set(configs.keys()) == {"yellowpages", "yelp", "bbb", "clutch", "crunchbase"}
 
     def test_each_has_listing_selector(self):
         configs = load_all_configs(SOURCES_DIR)

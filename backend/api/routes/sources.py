@@ -7,6 +7,7 @@ AVAILABLE_SOURCES = [
     {"name": "yelp", "display_name": "Yelp", "renderer": "static", "proxy_required": True},
     {"name": "bbb", "display_name": "Better Business Bureau", "renderer": "static", "proxy_required": False},
     {"name": "clutch", "display_name": "Clutch", "renderer": "static", "proxy_required": False},
+    {"name": "crunchbase", "display_name": "Crunchbase", "renderer": "playwright", "proxy_required": True},
 ]
 SOURCE_NAMES = {s["name"] for s in AVAILABLE_SOURCES}
 

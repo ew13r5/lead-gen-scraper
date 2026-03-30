@@ -12,6 +12,8 @@ pagination:
   start: 0
   max_pages: 20
 listing_selector: "div.component--grid-row"
+app_state_selector: "script#ng-state"
+app_state_jmespath: "HttpState.GET.*.body.entities[]"
 selectors:
   company_name: "a.component--field-formatter::text"
   website: "a.component--field-formatter::attr(href)"

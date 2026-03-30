@@ -7,6 +7,7 @@ from anti_detection.proxy_rotator import ProxyRotator
 from cache.html_cache import HtmlCache
 from models.raw_data import ProgressInfo, ScrapeResult
 from scrapers.config_loader import SourceConfig, load_all_configs, load_source_config
+from scrapers.dynamic_scraper import DynamicScraper
 from scrapers.static_scraper import StaticScraper
 
 
@@ -38,7 +39,11 @@ class SourceRouter:
         config = self.get_config(source_name)
 
         if config.renderer == "playwright":
-            raise NotImplementedError("Playwright renderer is planned for Phase 2")
+            scraper = DynamicScraper(
+                proxy_rotator=self._proxy_rotator,
+                on_progress=on_progress,
+            )
+            return await scraper.scrape(config, query, location, limit)
 
         scraper = StaticScraper(
             cache=self._cache,

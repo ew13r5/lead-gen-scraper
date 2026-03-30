@@ -130,7 +130,7 @@ class TestSourceRoutes:
     async def test_list_sources(self, client):
         resp = await client.get("/api/v1/sources/")
         assert resp.status_code == 200
-        assert len(resp.json()) == 4
+        assert len(resp.json()) == 5
 
     @pytest.mark.asyncio
     async def test_validate_valid(self, client):

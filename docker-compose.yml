@@ -34,6 +34,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: leadgen-api
+    init: true
     ports:
       - "8010:8000"
     env_file: ./backend/.env
@@ -50,6 +51,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: leadgen-celery
+    init: true
+    shm_size: '2gb'
     command: celery -A tasks.celery_app worker --loglevel=info
     env_file: ./backend/.env
     depends_on:
