@@ -44,7 +44,7 @@ def create_app() -> FastAPI:
                         mode="demo",
                         status="running",
                         limit=500,
-                        started_at=datetime.now(timezone.utc),
+                        started_at=datetime.utcnow(),
                     )
                     session.add(task)
                     await session.commit()
@@ -62,7 +62,7 @@ def create_app() -> FastAPI:
                     task.total_cleaned = cleaned
                     task.total_deduped = deduped
                     task.status = "completed"
-                    task.completed_at = datetime.now(timezone.utc)
+                    task.completed_at = datetime.utcnow()
                     await session.commit()
 
         yield

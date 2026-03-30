@@ -14,6 +14,22 @@ dependencies = [
     "jmespath",
     "playwright",
     "playwright-stealth",
+    "fastapi[standard]",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "pydantic-settings",
+    "alembic",
+    "celery",
+    "redis",
+    "openpyxl",
+    "gspread",
+    "google-auth",
+    "email-validator",
+    "phonenumbers",
+    "rapidfuzz",
+    "faker",
+    "numpy",
+    "aiosqlite",
 ]
 
 [project.optional-dependencies]

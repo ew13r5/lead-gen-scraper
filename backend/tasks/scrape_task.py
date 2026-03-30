@@ -44,7 +44,7 @@ def run_scrape(self, task_id: str) -> None:
             return
 
         task.status = "running"
-        task.started_at = datetime.now(timezone.utc)
+        task.started_at = datetime.utcnow()
         session.commit()
 
         def on_progress(info) -> None:
@@ -84,7 +84,7 @@ def run_scrape(self, task_id: str) -> None:
         task.total_cleaned = cleaned
         task.total_deduped = deduped
         task.status = "completed"
-        task.completed_at = datetime.now(timezone.utc)
+        task.completed_at = datetime.utcnow()
         session.commit()
 
         publish({
@@ -103,7 +103,7 @@ def run_scrape(self, task_id: str) -> None:
             if task:
                 task.status = "failed"
                 task.error_message = str(e)
-                task.completed_at = datetime.now(timezone.utc)
+                task.completed_at = datetime.utcnow()
                 session.commit()
         except Exception:
             logger.exception("Failed to update task status")
