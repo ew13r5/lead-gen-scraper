@@ -5,6 +5,7 @@ interface UseWebSocketResult {
   isConnected: boolean;
   progress: TaskProgress | null;
   error: string | null;
+  isComplete: boolean;
 }
 
 const MAX_BACKOFF = 30000;
@@ -13,6 +14,7 @@ export function useWebSocket(url: string | null): UseWebSocketResult {
   const [isConnected, setIsConnected] = useState(false);
   const [progress, setProgress] = useState<TaskProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const backoffRef = useRef(1000);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -33,6 +35,9 @@ export function useWebSocket(url: string | null): UseWebSocketResult {
       try {
         const data = JSON.parse(event.data) as TaskProgress;
         setProgress(data);
+        if (data.type === "task_completed" || data.type === "task_failed") {
+          setIsComplete(true);
+        }
       } catch {
         setError("Failed to parse WebSocket message");
       }
@@ -45,9 +50,11 @@ export function useWebSocket(url: string | null): UseWebSocketResult {
     ws.onclose = () => {
       setIsConnected(false);
       wsRef.current = null;
-      const delay = Math.min(backoffRef.current, MAX_BACKOFF);
-      backoffRef.current = delay * 2;
-      reconnectTimerRef.current = setTimeout(connect, delay);
+      if (!isComplete) {
+        const delay = Math.min(backoffRef.current, MAX_BACKOFF);
+        backoffRef.current = delay * 2;
+        reconnectTimerRef.current = setTimeout(connect, delay);
+      }
     };
   }, [url]);
 
@@ -62,5 +69,5 @@ export function useWebSocket(url: string | null): UseWebSocketResult {
     };
   }, [connect]);
 
-  return { isConnected, progress, error };
+  return { isConnected, progress, error, isComplete };
 }

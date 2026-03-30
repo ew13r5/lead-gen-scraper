@@ -39,11 +39,19 @@ export interface ScrapeTask {
 }
 
 export interface TaskProgress {
+  type?: "progress" | "task_completed" | "task_failed" | "results_update";
   pages_processed: number;
-  pages_total: number;
+  pages_total: number | null;
   items_found: number;
   errors: number;
   stage: string;
+  task_id?: string;
+  total_scraped?: number;
+  total_cleaned?: number;
+  total_deduped?: number;
+  error?: string;
+  new_count?: number;
+  total?: number;
 }
 
 export interface PipelineStage {
