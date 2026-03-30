@@ -20,4 +20,5 @@ class ExportResponse(BaseModel):
     format: str
     file_path: str | None = None
     rows_exported: int
+    url: str | None = None
     exported_at: datetime

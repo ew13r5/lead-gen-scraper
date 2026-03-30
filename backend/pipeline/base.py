@@ -17,6 +17,7 @@ class PipelineConfig(BaseModel):
     dedup_auto_threshold: int = 90
     dedup_review_threshold: int = 85
     check_email_dns: bool = True
+    check_email_smtp: bool = False
 
 
 class StageResult(BaseModel):

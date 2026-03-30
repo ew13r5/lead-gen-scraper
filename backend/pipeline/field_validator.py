@@ -26,8 +26,9 @@ ADDRESS_ABBREVS = {
 
 
 class FieldValidator(PipelineStage):
-    def __init__(self, check_email_dns: bool = False) -> None:
+    def __init__(self, check_email_dns: bool = False, check_email_smtp: bool = False) -> None:
         self._check_dns = check_email_dns
+        self._check_smtp = check_email_smtp
         self._stats = {}
 
     @property
@@ -66,6 +67,35 @@ class FieldValidator(PipelineStage):
             record["email"] = None
             record["email_validated"] = False
             stats["emails_invalid"] += 1
+            return
+
+        if self._check_smtp and record.get("email"):
+            if not self._smtp_check(record["email"]):
+                record["email_validated"] = False
+                stats.setdefault("emails_smtp_failed", 0)
+                stats["emails_smtp_failed"] += 1
+
+    @staticmethod
+    def _smtp_check(email: str) -> bool:
+        """SMTP handshake check. Returns True if server accepts the address."""
+        import smtplib
+        import dns.resolver
+
+        domain = email.split("@")[1]
+        try:
+            mx_records = dns.resolver.resolve(domain, "MX")
+            mx_host = str(mx_records[0].exchange).rstrip(".")
+        except Exception:
+            return False
+
+        try:
+            with smtplib.SMTP(mx_host, timeout=5) as smtp:
+                smtp.ehlo()
+                smtp.mail("")
+                code, _ = smtp.rcpt(email)
+                return code == 250
+        except Exception:
+            return False
 
     def _normalize_phone(self, record: dict, stats: dict) -> None:
         phone = record.get("phone")

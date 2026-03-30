@@ -89,6 +89,7 @@ def create_app() -> FastAPI:
     from api.routes.pipeline import router as pipeline_router
     from api.routes.demo import router as demo_router
     from api.routes.mode import router as mode_router
+    from api.routes.health import router as health_router
     from api.ws import router as ws_router
 
     app.include_router(tasks_router, prefix="/api/v1/tasks")
@@ -98,6 +99,7 @@ def create_app() -> FastAPI:
     app.include_router(pipeline_router, prefix="/api/v1/pipeline")
     app.include_router(demo_router, prefix="/api/v1/demo")
     app.include_router(mode_router, prefix="/api/v1/mode")
+    app.include_router(health_router, prefix="/api/v1/health")
     app.include_router(ws_router)
 
     return app

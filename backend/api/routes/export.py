@@ -54,6 +54,16 @@ async def trigger_export(
     elif body.format == "excel":
         file_path = str(exports_dir / f"export_{export_id}.xlsx")
         _export_excel(companies, file_path)
+    elif body.format == "sheets":
+        if not settings.google_sheets_credentials:
+            raise HTTPException(400, "Google Sheets credentials not configured")
+        sheet_url = _export_sheets(companies, settings.google_sheets_credentials, body.task_id, body.options)
+        log = ExportLog(id=export_id, task_id=body.task_id, format="sheets",
+                        file_path=sheet_url, rows_exported=len(companies))
+        db.add(log)
+        await db.commit()
+        await db.refresh(log)
+        return log
     else:
         raise HTTPException(400, f"Unsupported format: {body.format}")
 
@@ -109,3 +119,26 @@ def _export_excel(companies, file_path: str):
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = ws.dimensions
     wb.save(file_path)
+
+
+def _export_sheets(companies, credentials_json: str, task_id: str, options: dict | None = None) -> str:
+    import gspread
+    from google.oauth2.service_account import Credentials
+
+    creds_data = json.loads(credentials_json)
+    scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = Credentials.from_service_account_info(creds_data, scopes=scopes)
+    gc = gspread.authorize(creds)
+
+    title = f"Lead Gen Export - {task_id[:8]}"
+    spreadsheet = gc.create(title)
+
+    rows = [EXPORT_COLUMNS]
+    for c in companies:
+        rows.append([str(getattr(c, col, "") or "") for col in EXPORT_COLUMNS])
+    spreadsheet.sheet1.update(rows)
+
+    if options and options.get("share_with"):
+        spreadsheet.share(options["share_with"], perm_type="user", role="reader")
+
+    return spreadsheet.url
