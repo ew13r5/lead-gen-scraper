@@ -37,6 +37,23 @@ Lead Gen Scraper automates the entire pipeline: configure a source in YAML, run 
 - **Demo Mode** — 500 intentionally dirty records -> pipeline -> ~228 clean results
 - **One-Command Deploy** — `docker-compose up` starts all 5 services with auto-seeded data
 
+## Screenshots
+
+### Dashboard
+![Dashboard](docs/screenshots/01-dashboard.png)
+
+### New Task
+![New Task](docs/screenshots/02-new-task.png)
+
+### Task Progress
+![Task Progress](docs/screenshots/03-task-progress.png)
+
+### Results
+![Results](docs/screenshots/04-results.png)
+
+### Settings
+![Settings](docs/screenshots/05-settings.png)
+
 ## Architecture
 
 ```
