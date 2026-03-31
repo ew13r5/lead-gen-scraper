@@ -22,9 +22,6 @@ def create_app() -> FastAPI:
         from db_models.company import Company
         from sqlalchemy import select, func
 
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
         if settings.app_mode == "demo":
             async with async_session() as session:
                 count_result = await session.execute(

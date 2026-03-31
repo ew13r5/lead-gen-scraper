@@ -58,7 +58,8 @@ services:
     container_name: leadgen-celery
     init: true
     shm_size: '2gb'
-    command: celery -A tasks.celery_app worker --loglevel=info
+    entrypoint: []
+    command: ["celery", "-A", "tasks.celery_app", "worker", "--loglevel=info"]
     env_file: ./backend/.env
     depends_on:
       leadgen-postgres:

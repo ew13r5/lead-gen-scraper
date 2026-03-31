@@ -10,7 +10,7 @@ from pipeline.field_validator import FieldValidator
 from pipeline.deduplicator import Deduplicator
 from pipeline.enricher import Enricher
 
-COMPANY_COLUMNS = set(Company.__table__.columns.keys())
+COMPANY_COLUMNS = set(Company.__table__.columns.keys()) - {"id", "created_at", "updated_at", "is_duplicate_of"}
 
 
 def _map_dict_to_company(d: dict, task_id: str) -> Company:
@@ -29,10 +29,16 @@ def _map_dict_to_company(d: dict, task_id: str) -> Company:
                 fields["rating"] = float(value)
             except (ValueError, TypeError):
                 fields["rating"] = None
-        elif key == "scraped_at" and isinstance(value, str):
+        elif key == "scraped_at":
             try:
-                fields["scraped_at"] = datetime.fromisoformat(value)
-            except ValueError:
+                if isinstance(value, str):
+                    dt = datetime.fromisoformat(value)
+                elif isinstance(value, datetime):
+                    dt = value
+                else:
+                    continue
+                fields["scraped_at"] = dt.replace(tzinfo=None)
+            except (ValueError, TypeError):
                 pass
         elif key in COMPANY_COLUMNS:
             fields[key] = value
