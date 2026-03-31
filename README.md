@@ -56,34 +56,71 @@ Lead Gen Scraper automates the entire pipeline: configure a source in YAML, run 
 
 ## Architecture
 
-```
-Frontend (React + TypeScript)
-    |
-    v
-Nginx (static files + reverse proxy)
-    |
-    +---> /api/* ---> FastAPI (17 REST endpoints)
-    |                      |
-    +---> /ws/*  ---> WebSocket (real-time progress)
-                           |
-                     Celery Worker ---> Redis (broker + pub/sub)
-                           |
-                     Source Router
-                      /         \
-              Static Scraper   Dynamic Scraper
-             (httpx + parsel)  (Playwright + stealth)
-                      \         /
-                    YAML Configs (5 sources)
-                           |
-                     Data Pipeline
-                     Stage 1: HTML/Unicode Cleaner
-                     Stage 2: Field Validator
-                     Stage 3: Deduplicator (rapidfuzz)
-                     Stage 4: Enricher
-                           |
-                     PostgreSQL 15
-                           |
-                     Export: CSV / Excel / JSON / Google Sheets
+```mermaid
+graph TB
+    subgraph "Frontend"
+        UI[React 18 + TypeScript]
+    end
+
+    subgraph "Proxy Layer"
+        NG[Nginx]
+    end
+
+    subgraph "Backend"
+        API[FastAPI — 17 endpoints]
+        WS[WebSocket Server]
+    end
+
+    subgraph "Workers"
+        CEL[Celery Worker]
+    end
+
+    subgraph "Scraper Engine"
+        ROUTER[Source Router]
+        STATIC[Static Scraper — httpx + parsel]
+        DYNAMIC[Dynamic Scraper — Playwright + stealth]
+        ANTI[Anti-Detection — proxy/UA rotation]
+    end
+
+    subgraph "Data Pipeline"
+        S1["Stage 1: HTML/Unicode Cleaner"]
+        S2["Stage 2: Field Validator"]
+        S3["Stage 3: Deduplicator — rapidfuzz"]
+        S4["Stage 4: Enricher"]
+    end
+
+    subgraph "Storage"
+        DB[(PostgreSQL 15)]
+        RD[(Redis 7)]
+    end
+
+    subgraph "Export"
+        CSV[CSV]
+        XLS[Excel]
+        JSON_E[JSON]
+        GS[Google Sheets]
+    end
+
+    subgraph "Sources — YAML configs"
+        YP[YellowPages]
+        YELP[Yelp]
+        BBB[BBB.org]
+        CLT[Clutch.co]
+        CB[Crunchbase]
+    end
+
+    UI --> NG --> API
+    UI <--> WS
+    API --> CEL
+    CEL --> ROUTER
+    ROUTER --> STATIC
+    ROUTER --> DYNAMIC
+    STATIC --> ANTI
+    DYNAMIC --> ANTI
+    ROUTER -.->|config| YP & YELP & BBB & CLT & CB
+    ROUTER -->|raw data| S1 --> S2 --> S3 --> S4 -->|clean data| DB
+    CEL -->|progress| RD -->|pub/sub| WS
+    API --> CSV & XLS & JSON_E & GS
 ```
 
 ## Pipeline Deep-Dive
@@ -184,6 +221,19 @@ Open `http://localhost:3010`. In Demo mode, 500 sample companies are auto-seeded
 | API | 8010 | http://localhost:8010/docs |
 | PostgreSQL | 5440 | |
 | Redis | 6385 | |
+
+## Demo Mode
+
+On first startup, the system auto-seeds **500 sample companies** with intentionally dirty data:
+- 15% duplicate entries (same company from different "sources")
+- 10% invalid email addresses (typos, missing domains)
+- Mixed phone formats: `(555) 123-4567`, `555-123-4567`, `+15551234567`
+- HTML entities in company names (`&amp;` instead of `&`)
+- Hidden Unicode characters in addresses
+
+The pipeline processes all 500 records and produces **~228 clean, unique leads** — demonstrating the full data quality improvement without any real scraping.
+
+Toggle between Demo and Live mode in the Settings page.
 
 ## Configuration
 
